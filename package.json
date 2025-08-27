@@ -1,0 +1,47 @@
+{
+  "name": "booktools",
+  "version": "1.0.0",
+  "description": "跨平台的epub电子书处理工具集 - 转换epub为markdown并整理文件结构",
+  "main": "bin/booktools.js",
+  "bin": {
+    "booktools": "./bin/booktools.js",
+    "book-process": "./bin/book-process.js",
+    "book-organize": "./bin/book-organize.js",
+    "book-merge": "./bin/book-merge.js",
+    "book-clean": "./bin/book-clean.js",
+    "book-template": "./bin/book-template.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "echo \"Ready to publish\"",
+    "prepublishOnly": "echo \"Publishing booktools...\"",
+    "postpublish": "echo \"Successfully published!\"",
+    "postinstall": "node -e \"try { require('child_process').execSync('npm install -g epub2md', {stdio:'inherit'}); console.log('✅ epub2md installed globally'); } catch(e) { console.log('⚠️  Please install epub2md manually: npm install -g epub2md'); }\""
+  },
+  "keywords": [
+    "epub",
+    "markdown",
+    "book",
+    "converter",
+    "cli"
+  ],
+  "author": "BookTools Team",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.1.1",
+    "epub2md": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "homepage": ""
+}
