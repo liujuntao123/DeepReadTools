@@ -2,9 +2,11 @@
 
 > 一键将epub文件转换为整理好的markdown文档，简单易用，无需复杂配置
 
-[![Node Version](https://img.shields.io/badge/node-14+-green.svg)](https://nodejs.org)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+## 🔗 相关资源
+
+- 📖 [**AI驱动的书籍知识图谱制作完整指南**](https://deepread.aizhi.site/AI驱动的书籍知识图谱制作完整指南) - 详细的制作教程
+- 🎯 [**Demo项目代码库**](https://github.com/liujuntao123/DeepRead) - 完整的演示项目和案例
 
 ## 🚀 2步快速上手
 
