@@ -1,6 +1,6 @@
 {
   "name": "booktools",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "跨平台的epub电子书处理工具集 - 转换epub为markdown并整理文件结构",
   "main": "bin/booktools.js",
   "bin": {
