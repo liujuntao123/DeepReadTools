@@ -1,185 +1,344 @@
 #!/usr/bin/env node
 
-const { Command } = require('commander');
 const chalk = require('chalk');
 const path = require('path');
+const fs = require('fs-extra');
 const { execSync } = require('child_process');
+const inquirer = require('inquirer');
 
-const program = new Command();
-
-// 设置程序信息
-program
-  .name('booktools')
-  .description('书籍处理工具集：epub转换和文件夹整理')
-  .version('1.0.0');
-
-// interactive 子命令 (推荐)
-program
-  .command('interactive')
-  .alias('i')
-  .description('交互式处理epub文件（推荐使用）')
-  .option('-d, --dir <dir>', '搜索epub文件的目录（默认为当前目录）')
-  .action((options) => {
-    console.log(chalk.blue('=== epub文件处理工具 - 交互式模式 ==='));
-    console.log(`版本: 1.0.0`);
-    console.log(`兼容: Windows, macOS, Linux`);
-    console.log();
-    
-    try {
-      const args = ['interactive'];
-      if (options.dir) args.push('--dir', options.dir);
-      
-      const bookProcessPath = path.join(__dirname, 'book-process.js');
-      const command = `node "${bookProcessPath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
-      
-      execSync(command, { stdio: 'inherit' });
-    } catch (error) {
-      console.log(chalk.red('\n[×] 处理过程中出现错误'));
-      process.exit(1);
-    }
-  });
-
-// process 子命令
-program
-  .command('process [epubPath] [outputDir]')
-  .description('处理epub文件，转换为markdown并整理文件结构')
-  .option('--no-clean-references', '跳过清理引用格式步骤（默认会执行清理）')
-  .option('-i, --interactive', '启动交互式模式')
-  .action((epubPath, outputDir, options) => {
-    console.log(chalk.blue('=== epub文件处理工具 ==='));
-    console.log(`版本: 1.0.0`);
-    console.log(`兼容: Windows, macOS, Linux`);
-    console.log();
-    
-    try {
-      // 构建命令参数
-      const args = [];
-      if (epubPath) args.push(epubPath);
-      if (outputDir) args.push(outputDir);
-      if (!options.cleanReferences) args.push('--no-clean-references');
-      if (options.interactive) args.push('--interactive');
-      
-      const bookProcessPath = path.join(__dirname, 'book-process.js');
-      const command = `node "${bookProcessPath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
-      
-      execSync(command, { stdio: 'inherit' });
-    } catch (error) {
-      console.log(chalk.red('\n[×] 处理过程中出现错误'));
-      process.exit(1);
-    }
-  });
-
-// organize 子命令
-program
-  .command('organize <bookName>')
-  .description('重新整理已处理的书籍文件夹结构')
-  .option('--dir <baseDir>', '书籍文件夹路径（默认为当前目录）')
-  .action((bookName, options) => {
-    console.log(chalk.blue('=== 书籍文件夹整理工具 ==='));
-    console.log(`版本: 1.0.0`);
-    console.log(`兼容: Windows, macOS, Linux`);
-    console.log();
-    
-    try {
-      // 调用 book-organize 命令
-      const args = [bookName];
-      if (options.dir) args.push('--dir', options.dir);
-      
-      const bookOrganizePath = path.join(__dirname, 'book-organize.js');
-      const command = `node "${bookOrganizePath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
-      
-      execSync(command, { stdio: 'inherit' });
-      console.log(chalk.green('\n🎉 文件夹整理完成！'));
-    } catch (error) {
-      console.log(chalk.red('\n❌ 整理过程中出现错误'));
-      process.exit(1);
-    }
-  });
-
-// template 子命令
-program
-  .command('template [templateName] [targetDir]')
-  .description('复制模板文件到当前目录或指定目录')
-  .action((templateName, targetDir) => {
-    console.log(chalk.blue('=== 模板复制工具 ==='));
-    console.log(`版本: 1.0.0`);
-    console.log(`兼容: Windows, macOS, Linux`);
-    console.log();
-    
-    try {
-      // 调用 book-template 命令
-      const args = [];
-      if (templateName) args.push(templateName);
-      if (targetDir) args.push(targetDir);
-      
-      const bookTemplatePath = path.join(__dirname, 'book-template.js');
-      const command = `node "${bookTemplatePath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
-      
-      execSync(command, { stdio: 'inherit' });
-    } catch (error) {
-      console.log(chalk.red('\n❌ 模板复制过程中出现错误'));
-      process.exit(1);
-    }
-  });
-
-// 显示帮助信息
-program.on('--help', () => {
-  console.log('');
-  console.log('子命令说明:');
-  console.log('  interactive (i)  🎯 交互式处理epub文件（推荐使用）');
-  console.log('  process          📚 处理epub文件，转换为markdown并整理文件结构');
-  console.log('  organize         📁 重新整理已处理的书籍文件夹结构');
-  console.log('  template         📄 复制模板文件到当前目录或指定目录');
-  console.log('');
-  console.log('推荐用法 (交互式):');
-  console.log('  booktools interactive              # 在当前目录搜索并选择epub文件');
-  console.log('  booktools i                        # 交互式模式简写');
-  console.log('  booktools i --dir /path/to/books   # 在指定目录搜索epub文件');
-  console.log('');
-  console.log('传统用法 (命令行参数):');
-  console.log('  booktools process                  # 启动交互式模式');
-  console.log('  booktools process book.epub        # 处理指定文件');
-  console.log('  booktools process book.epub ./output');
-  console.log('  booktools process book.epub --no-clean-references');
-  console.log('  booktools process --interactive    # 强制交互式模式');
-  console.log('');
-  console.log('其他命令:');
-  console.log('  booktools organize 三国演义');
-  console.log('  booktools organize 红楼梦 --dir /path/to/book/folder');
-  console.log('  booktools template');
-  console.log('  booktools template GEMINI.md');
-  console.log('  booktools template GEMINI.md ./my-project');
-  console.log('');
-  console.log('获取子命令帮助:');
-  console.log('  booktools interactive --help');
-  console.log('  booktools process --help');
-  console.log('  booktools organize --help');
-  console.log('  booktools template --help');
-  console.log('');
-  console.log(chalk.yellow('💡 提示: 建议使用 "booktools interactive" 来获得最佳体验！'));
-});
-
-// 如果没有参数，启动交互式模式
-if (process.argv.length <= 2) {
-  console.log(chalk.blue('=== epub文件处理工具集 ==='));
-  console.log(`版本: 1.0.0`);
-  console.log(`兼容: Windows, macOS, Linux`);
-  console.log();
-  console.log(chalk.cyan('🎯 默认启动交互式模式...'));
-  console.log(chalk.gray('   提示: 使用 "booktools --help" 查看所有可用命令'));
-  console.log();
-  
+// 动态获取版本号
+function getVersion() {
   try {
-    const bookProcessPath = path.join(__dirname, 'book-process.js');
-    const command = `node "${bookProcessPath}" interactive`;
-    
-    execSync(command, { stdio: 'inherit' });
+    const packagePath = path.join(__dirname, '..', 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+    return packageJson.version;
   } catch (error) {
-    console.log(chalk.red('\n[×] 启动交互式模式失败'));
-    console.log(chalk.yellow('使用 "booktools --help" 查看帮助信息'));
-    process.exit(1);
+    return '1.0.0';
   }
+}
+
+// 工具函数：检查epub2md是否可用
+function checkEpub2md() {
+  try {
+    execSync('epub2md --help', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// 工具函数：递归搜索epub文件
+function findEpubFiles(directory) {
+  const epubFiles = [];
+  
+  function searchDir(dir) {
+    try {
+      const items = fs.readdirSync(dir);
+      for (const item of items) {
+        const itemPath = path.join(dir, item);
+        const stat = fs.statSync(itemPath);
+        
+        if (stat.isDirectory()) {
+          searchDir(itemPath);
+        } else if (path.extname(item).toLowerCase() === '.epub') {
+          epubFiles.push({
+            name: item,
+            path: itemPath,
+            relativePath: path.relative(directory, itemPath),
+            size: stat.size,
+            mtime: stat.mtime
+          });
+        }
+      }
+    } catch (error) {
+      // 忽略权限错误等问题
+    }
+  }
+  
+  searchDir(directory);
+  return epubFiles;
+}
+
+// 工具函数：格式化文件大小
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// 工具函数：格式化时间
+function formatTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+  
+  if (days === 0) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 7) return `${days}天前`;
+  if (days < 30) return `${Math.floor(days / 7)}周前`;
+  return date.toLocaleDateString();
+}
+
+// 工具函数：清理markdown引用格式
+function cleanReferences(content) {
+  let cleaned = content;
+  
+  // 移除epub2md产生的特殊引用格式
+  cleaned = cleaned.replace(/\[\^(\d+)\]:\s*.*$/gm, '');
+  cleaned = cleaned.replace(/\[\^(\d+)\]/g, '');
+  
+  // 清理多余的空行
+  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
+  
+  return cleaned;
+}
+
+// 工具函数：合并markdown文件
+function mergeMarkdownFiles(inputDir, outputFile) {
+  const files = fs.readdirSync(inputDir)
+    .filter(file => path.extname(file).toLowerCase() === '.md')
+    .sort();
+  
+  let mergedContent = '';
+  
+  for (const file of files) {
+    const filePath = path.join(inputDir, file);
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    mergedContent += `# ${path.basename(file, '.md')}\n\n`;
+    mergedContent += content + '\n\n';
+  }
+  
+  fs.writeFileSync(outputFile, mergedContent, 'utf8');
+}
+
+// 核心功能：复制.claude模板目录
+function copyClaudeTemplate() {
+  try {
+    const templatesDir = path.join(__dirname, '..', 'templates');
+    const claudeSourceDir = path.join(templatesDir, '.claude');
+    const claudeTargetDir = path.join(process.cwd(), '.claude');
+    
+    if (!fs.existsSync(claudeSourceDir)) {
+      console.log(chalk.yellow('⚠️  .claude模板目录不存在，跳过复制'));
+      return;
+    }
+    
+    if (fs.existsSync(claudeTargetDir)) {
+      console.log(chalk.blue('📄 .claude目录已存在，跳过复制'));
+      return;
+    }
+    
+    fs.copySync(claudeSourceDir, claudeTargetDir);
+    console.log(chalk.green('✅ .claude模板目录已复制'));
+    
+  } catch (error) {
+    console.log(chalk.yellow(`⚠️  复制.claude模板失败: ${error.message}`));
+  }
+}
+
+// 核心功能：处理epub文件（简化版）
+async function processEpub(epubPath) {
+  try {
+    console.log(chalk.blue(`\n📚 开始处理: ${path.basename(epubPath)}`));
+    
+    // 检查epub2md
+    if (!checkEpub2md()) {
+      throw new Error('epub2md未安装或不可用。请运行: npm install -g epub2md');
+    }
+    
+    // 检查文件是否存在
+    if (!fs.existsSync(epubPath)) {
+      throw new Error(`文件不存在: ${epubPath}`);
+    }
+    
+    const bookName = path.basename(epubPath, '.epub');
+    
+    // 创建books目录
+    const booksDir = path.join(process.cwd(), 'books');
+    fs.ensureDirSync(booksDir);
+    
+    console.log(chalk.blue('🔄 转换epub到markdown...'));
+    
+    // 直接转换到books目录
+    try {
+      execSync(`epub2md "${epubPath}" "${booksDir}"`, { stdio: 'inherit' });
+    } catch (error) {
+      throw new Error('epub转换失败');
+    }
+    
+    // 清理books目录中的所有md文件的引用格式
+    console.log(chalk.blue('🧹 清理引用格式...'));
+    const mdFiles = fs.readdirSync(booksDir)
+      .filter(file => path.extname(file).toLowerCase() === '.md')
+      .map(file => path.join(booksDir, file));
+    
+    for (const mdFile of mdFiles) {
+      const content = fs.readFileSync(mdFile, 'utf8');
+      const cleaned = cleanReferences(content);
+      fs.writeFileSync(mdFile, cleaned, 'utf8');
+    }
+    
+    // 复制.claude模板
+    copyClaudeTemplate();
+    
+    console.log(chalk.green('\n✅ 处理完成！'));
+    console.log(chalk.cyan(`📁 查看结果: ${booksDir}`));
+    console.log(chalk.cyan(`📄 找到 ${mdFiles.length} 个markdown文件`));
+    
+    return { success: true, booksDir, fileCount: mdFiles.length };
+    
+  } catch (error) {
+    console.log(chalk.red(`\n❌ 处理失败: ${error.message}`));
+    return { success: false, error: error.message };
+  }
+}
+
+// 核心功能：整理当前目录文件
+async function organizeCurrentDirectory() {
+  try {
+    const currentDir = process.cwd();
+    const currentDirName = path.basename(currentDir);
+    const targetDir = path.join(currentDir, currentDirName);
+    
+    console.log(chalk.blue(`\n📁 开始整理当前目录到: ${currentDirName}`));
+    
+    // 创建目标目录
+    fs.ensureDirSync(targetDir);
+    
+    // 获取当前目录下的所有文件和文件夹（除了目标文件夹本身和todo.md）
+    const items = fs.readdirSync(currentDir);
+    const itemsToMove = items.filter(item => {
+      return item !== currentDirName && item !== 'todo.md';
+    });
+    
+    if (itemsToMove.length === 0) {
+      console.log(chalk.yellow('没有文件需要移动'));
+      return;
+    }
+    
+    console.log(chalk.blue(`📦 移动 ${itemsToMove.length} 个项目...`));
+    
+    for (const item of itemsToMove) {
+      const srcPath = path.join(currentDir, item);
+      const destPath = path.join(targetDir, item);
+      
+      try {
+        if (fs.existsSync(destPath)) {
+          // 如果目标已存在，先删除
+          fs.removeSync(destPath);
+        }
+        fs.moveSync(srcPath, destPath);
+        console.log(chalk.gray(`   ✓ ${item}`));
+      } catch (error) {
+        console.log(chalk.yellow(`   ⚠️  无法移动 ${item}: ${error.message}`));
+      }
+    }
+    
+    console.log(chalk.green(`\n✅ 整理完成！文件已移动到: ${targetDir}`));
+    
+  } catch (error) {
+    console.log(chalk.red(`❌ 整理失败: ${error.message}`));
+    throw error;
+  }
+}
+
+// 主要交互式流程
+async function mainInteractiveFlow() {
+  try {
+    const version = getVersion();
+    
+    console.log(chalk.blue('=== epub文件处理工具 ==='));
+    console.log(`版本: ${version}`);
+    console.log(`兼容: Windows, macOS, Linux`);
+    console.log();
+    
+    // 首先询问用户要做什么
+    const { action } = await inquirer.prompt([{
+      type: 'list',
+      name: 'action',
+      message: '请选择操作:',
+      choices: [
+        { name: '📚 处理epub文件', value: 'process' },
+        { name: '📁 整理当前目录', value: 'organize' },
+        { name: '❌ 退出', value: 'exit' }
+      ]
+    }]);
+    
+    if (action === 'exit') {
+      console.log(chalk.yellow('再见！'));
+      return;
+    }
+    
+    if (action === 'organize') {
+      await organizeCurrentDirectory();
+      return;
+    }
+    
+    // 处理epub文件
+    console.log(chalk.blue('\n🔍 正在扫描epub文件...'));
+    const epubFiles = findEpubFiles(process.cwd());
+    
+    if (epubFiles.length === 0) {
+      console.log(chalk.yellow('❌ 当前目录未找到epub文件'));
+      console.log(chalk.gray('提示: 请将epub文件放在当前目录或其子目录中'));
+      return;
+    }
+    
+    console.log(chalk.green(`✅ 找到 ${epubFiles.length} 个epub文件`));
+    
+    // 构建选择列表
+    const choices = epubFiles.map(file => ({
+      name: `${file.name} (${formatFileSize(file.size)}, ${formatTime(file.mtime)}, ${path.dirname(file.relativePath) || '.'})`,
+      value: file.path
+    }));
+    
+    const { selectedFile } = await inquirer.prompt([{
+      type: 'list',
+      name: 'selectedFile',
+      message: '请选择要处理的epub文件:',
+      choices: choices,
+      pageSize: 15
+    }]);
+    
+    // 处理选定的文件
+    await processEpub(selectedFile);
+    
+  } catch (error) {
+    console.log(chalk.red(`❌ 操作失败: ${error.message}`));
+  }
+}
+
+// 处理命令行参数
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  const version = getVersion();
+  console.log(`booktools v${version}`);
+  console.log();
+  console.log('📚 epub文件处理工具');
+  console.log();
+  console.log('用法:');
+  console.log('  booktools              启动交互式模式');
+  console.log('  booktools --help       显示帮助信息');
+  console.log('  booktools --version    显示版本信息');
+  console.log();
+  console.log('功能:');
+  console.log('  📚 转换epub为markdown文件');
+  console.log('  📁 整理文件夹结构');
+  console.log('  📄 自动复制AI分析模板');
+  console.log();
+  console.log('💡 提示: 直接运行 "booktools" 开始使用！');
   process.exit(0);
 }
 
-program.parse(process.argv);
+if (process.argv.includes('--version') || process.argv.includes('-v')) {
+  console.log(getVersion());
+  process.exit(0);
+}
+
+// 启动主流程
+mainInteractiveFlow().catch(error => {
+  console.log(chalk.red(`\n💥 严重错误: ${error.message}`));
+  process.exit(1);
+});

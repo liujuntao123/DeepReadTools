@@ -4,12 +4,7 @@
   "description": "跨平台的epub电子书处理工具集 - 转换epub为markdown并整理文件结构",
   "main": "bin/booktools.js",
   "bin": {
-    "booktools": "./bin/booktools.js",
-    "book-process": "./bin/book-process.js",
-    "book-organize": "./bin/book-organize.js",
-    "book-merge": "./bin/book-merge.js",
-    "book-clean": "./bin/book-clean.js",
-    "book-template": "./bin/book-template.js"
+    "booktools": "./bin/booktools.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
