@@ -156,18 +156,48 @@ async function processEpub(epubPath) {
     
     const bookName = path.basename(epubPath, '.epub');
     
-    // 创建books目录
-    const booksDir = path.join(process.cwd(), 'books');
-    fs.ensureDirSync(booksDir);
-    
     console.log(chalk.blue('🔄 转换epub到markdown...'));
-    
-    // 直接转换到books目录
     try {
-      execSync(`epub2md "${epubPath}" "${booksDir}"`, { stdio: 'inherit' });
+      execSync(`epub2md "${epubPath}"`, { stdio: 'inherit' });
     } catch (error) {
       throw new Error('epub转换失败');
     }
+
+    // epub2md转换后会产生一个以bookName命名的目录
+    const workDir = path.join(process.cwd(), bookName);
+    
+    // 检查转换后的目录是否存在
+    if (!fs.existsSync(workDir)) {
+      throw new Error(`转换后的目录不存在: ${workDir}`);
+    }
+
+    // 创建books目录
+    const booksDir = path.join(workDir, 'books');
+    fs.ensureDirSync(booksDir);
+    console.log(chalk.blue('📁 创建books目录...'));
+    
+    // 将workDir下的所有文件移动到books目录下
+    console.log(chalk.blue('📦 移动文件到books目录...'));
+    const items = fs.readdirSync(workDir);
+    let movedCount = 0;
+    
+    for (const item of items) {
+      // 跳过books目录本身
+      if (item === 'books') continue;
+      
+      const srcPath = path.join(workDir, item);
+      const destPath = path.join(booksDir, item);
+      
+      try {
+        fs.moveSync(srcPath, destPath);
+        movedCount++;
+        console.log(chalk.gray(`   ✓ ${item}`));
+      } catch (error) {
+        console.log(chalk.yellow(`   ⚠️  无法移动 ${item}: ${error.message}`));
+      }
+    }
+    
+    console.log(chalk.blue(`📦 已移动 ${movedCount} 个文件/目录到books目录`));
     
     // 清理books目录中的所有md文件的引用格式
     console.log(chalk.blue('🧹 清理引用格式...'));
@@ -181,8 +211,11 @@ async function processEpub(epubPath) {
       fs.writeFileSync(mdFile, cleaned, 'utf8');
     }
     
-    // 复制.claude模板
+    // 在workDir中复制.claude模板（不是在当前目录）
+    const originalCwd = process.cwd();
+    process.chdir(workDir);
     copyClaudeTemplate();
+    process.chdir(originalCwd);
     
     console.log(chalk.green('\n✅ 处理完成！'));
     console.log(chalk.cyan(`📁 查看结果: ${booksDir}`));
@@ -208,18 +241,21 @@ async function organizeCurrentDirectory() {
     // 创建目标目录
     fs.ensureDirSync(targetDir);
     
-    // 获取当前目录下的所有文件和文件夹（除了目标文件夹本身和todo.md）
+    // 获取当前目录下的所有md文件（除了todo.md）
     const items = fs.readdirSync(currentDir);
     const itemsToMove = items.filter(item => {
-      return item !== currentDirName && item !== 'todo.md';
+      const itemPath = path.join(currentDir, item);
+      const isFile = fs.statSync(itemPath).isFile();
+      const isMdFile = path.extname(item).toLowerCase() === '.md';
+      return isFile && isMdFile && item !== 'todo.md';
     });
     
     if (itemsToMove.length === 0) {
-      console.log(chalk.yellow('没有文件需要移动'));
+      console.log(chalk.yellow('没有md文件需要移动'));
       return;
     }
     
-    console.log(chalk.blue(`📦 移动 ${itemsToMove.length} 个项目...`));
+    console.log(chalk.blue(`📦 移动 ${itemsToMove.length} 个md文件...`));
     
     for (const item of itemsToMove) {
       const srcPath = path.join(currentDir, item);
