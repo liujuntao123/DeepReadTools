@@ -1,6 +1,6 @@
-# 📚 BookTools - epub电子书处理工具
+# 📚 BookTools - AI驱动的电子书知识图谱构建工具
 
-> 一键将epub文件转换为整理好的markdown文档，简单易用，无需复杂配置
+> 一键将epub转换为结构化markdown，并自动构建AI知识图谱，让每本书都成为可深度分析的知识网络
 
 
 ## 🔗 相关资源
@@ -16,116 +16,51 @@ npm install -g booktools
 ```
 *📦 会自动安装epub2md依赖，无需额外配置*
 
-### 第二步：处理你的第一本书
+### 第二步：启动交互式工具
 ```bash
-# 把epub文件放在任意目录，然后运行：
-booktools process 我的书籍.epub
+# 进入包含epub文件的目录，然后运行：
+booktools
 
-# 🎉 完成！工具会自动：
-# ✅ 转换epub为markdown章节
-# ✅ 合并成完整文档
-# ✅ 清理格式
-# ✅ 整理文件夹结构
+# 🎯 工具会自动：
+# ✅ 扫描当前目录下的所有epub文件
+# ✅ 提供友好的交互式选择界面
+# ✅ 一键完成转换和整理流程
 ```
 
-### 第三步：查看结果
+### 工作流程展示
+```
+📚 epub文件处理工具
+版本: 1.1.0
+兼容: Windows, macOS, Linux
+
+? 请选择操作: (Use arrow keys)
+❯ 📚 处理epub文件
+  📁 整理当前目录  
+  ❌ 退出
+
+🔍 正在扫描epub文件...
+✅ 找到 3 个epub文件
+
+? 请选择要处理的epub文件: (Use arrow keys)
+❯ 三国演义.epub (2.1 MB, 2天前, .)
+  红楼梦.epub (3.5 MB, 1周前, ./classics)
+  水浒传.epub (2.8 MB, 昨天, ./books)
+```
+
+### 处理结果
 ```
 我的书籍/
-├── books/              # 📁 原始章节文件
-│   ├── 第一章.md
-│   ├── 第二章.md
-│   └── 我的书籍.md.backup
-└── wiki/               # 📁 整理后的文件
-    ├── 我的书籍.md     # 📄 完整的书籍内容
-    └── GEMINI.md       # 📄 AI分析模板 (可用template命令生成)
+├── .claude/            # 🤖 AI代理工作流模板
+│   ├── agents/        # 知识架构师和节点生成器
+│   └── commands/      # 初始构建和节点生成命令
+└── books/             # 📁 原始markdown章节文件
+    ├── 第一章.md
+    ├── 第二章.md
+    └── ...
 ```
 
-**就这么简单！** 现在您可以用AI工具分析书籍内容，或者直接阅读整理好的markdown文档。
+**就这么简单！** 现在您可以使用AI进行深度分析，构建完整的知识图谱网络。
 
----
-
-## 📖 更多用法
-
-<details>
-<summary><b>🔍 点击展开查看详细功能</b></summary>
-
-### 常用命令
-
-```bash
-# 查看帮助
-booktools --help
-
-# 指定输出目录
-booktools process 书籍.epub ./输出文件夹
-
-# 跳过引用清理（保留原始格式）
-booktools process 书籍.epub --no-clean-references
-
-# 重新整理已处理的书籍
-booktools organize 书籍名称
-
-# 复制模板文件到当前目录
-booktools template
-```
-
-### 批量处理
-
-```bash
-# Windows PowerShell
-Get-ChildItem *.epub | ForEach-Object { booktools process $_.Name }
-
-# Linux/macOS
-for file in *.epub; do booktools process "$file"; done
-```
-
-### 独立工具
-
-```bash
-# 合并文件夹中的所有文件
-book-merge ./章节目录 合并文件.md
-
-# 清理markdown中的引用格式
-book-clean 文件.md
-
-# 整理书籍文件夹
-book-organize 书籍名称
-```
-
-</details>
-
----
-
-## 🛠️ 问题解决
-
-<details>
-<summary><b>⚠️ 遇到问题？点击查看解决方案</b></summary>
-
-### 安装问题
-
-**问题：`booktools: command not found`**
-```bash
-# 解决方案：重新安装
-npm install -g booktools
-# 然后重启终端
-```
-
-**问题：`epub2md: command not found`**
-```bash
-# 解决方案：重新安装booktools（会自动安装epub2md）
-npm install -g booktools
-```
-
-**问题：权限错误（Linux/macOS）**
-```bash
-# 解决方案：使用用户级安装
-npm install -g booktools --prefix ~/.local
-```
-
-**问题：Windows执行策略错误**
-```powershell
-# 解决方案：以管理员身份运行PowerShell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
 
 ### 验证安装
 
@@ -141,96 +76,58 @@ epub2md --help         # 应该显示帮助信息
 npm uninstall -g booktools
 ```
 
-</details>
-
 ---
 
-## 📋 命令参考
+## 🤖 AI知识图谱构建
 
-<details>
-<summary><b>📚 点击查看完整命令列表</b></summary>
+处理完epub文件后，BookTools会自动复制.claude模板到输出目录，让您可以直接使用AI构建专业的知识图谱网络。
 
-### booktools process
-```bash
-booktools process <epub文件> [输出目录] [选项]
+### AI工作流
 
-选项：
-  --no-clean-references  跳过引用清理
-  --help                显示帮助
-
-示例：
-  booktools process 三国演义.epub
-  booktools process 红楼梦.epub ./books
-  booktools process 水浒传.epub --no-clean-references
+```text
+我的书籍/
+├── .claude/                    # 🤖 AI工作流模板
+│   ├── agents/                # AI代理定义
+│   │   ├── Architect.md       # 知识架构师 - 负责分析和设计蓝图
+│   │   └── Generator.md       # 节点生成器 - 负责生成知识节点
+│   └── commands/              # 工作流命令
+│       ├── Initial_construction.md  # 初始构建命令
+│       └── node_generation.md      # 节点生成命令
+└── books/                     # 📁 原始章节文件
+    ├── 第一章.md
+    └── ...
 ```
 
-### booktools organize
-```bash
-booktools organize <书籍名称> [选项]
+### 使用步骤
 
-选项：
-  --dir <目录>  指定书籍文件夹路径
-  --help       显示帮助
+1. **打开Claude Code** - 在目录下打开Claude Code
+2. **执行初始构建** - 运行 `Initial_construction` 命令，生成知识网络蓝图
+3. **自动化节点生成** - 运行 `node_generation` 命令，批量生成所有知识节点
+4. **享受知识图谱** - 获得完整的、相互关联的知识网络
 
-示例：
-  booktools organize 三国演义
-  booktools organize 红楼梦 --dir ./books
-```
+### 工作流特性
 
-### booktools template
-```bash
-booktools template [模板名称] [目标目录]
+- 🎯 **专业架构** - 基于"核心实体、核心抽象、关键事件"三大类别构建
+- 📊 **结构化输出** - 每个知识节点包含YAML元数据、原文引述、展开阐述和关联网络
+- 🔗 **智能关联** - 自动识别并链接相关知识节点，构建完整知识网络
+- ⚡ **批量处理** - 支持自动化批量生成，无需手动逐个处理
+- 📋 **任务管理** - 内置todo系统，实时跟踪构建进度
 
-参数：
-  模板名称    要复制的模板文件名 (默认: GEMINI.md)
-  目标目录    复制到的目标目录 (默认: 当前目录)
-
-选项：
-  --help     显示帮助
-
-示例：
-  booktools template                    # 复制GEMINI.md到当前目录
-  booktools template GEMINI.md         # 指定模板文件名
-  booktools template GEMINI.md ./docs  # 复制到指定目录
-```
-
-### book-merge
-```bash
-book-merge <输入目录> <输出文件>
-
-示例：
-  book-merge ./chapters book.md
-  book-merge . complete.md
-```
-
-### book-clean
-```bash
-book-clean [文件或目录] [选项]
-
-选项：
-  --no-backup      不创建备份
-  --recursive, -r  递归处理子目录
-  --help          显示帮助
-
-示例：
-  book-clean book.md
-  book-clean . --recursive
-  book-clean ./books --no-backup
-```
-
-</details>
 
 ---
 
 ## ✨ 特性
 
 - 🚀 **一键安装** - npm全局安装，无需复杂配置
-- 📚 **epub转换** - 自动转换为markdown格式
+- 🎯 **交互式界面** - 友好的命令行交互，自动扫描和选择epub文件
+- 📚 **智能转换** - 自动转换epub为结构化markdown格式
 - 🧹 **智能清理** - 去除引用格式，保留纯净内容
-- 📁 **自动整理** - 创建规范的目录结构
-- 📝 **模板管理** - 内置AI分析模板，快速复制使用
-- 🔧 **跨平台** - Windows、macOS、Linux完全兼容
-- ⚡ **高效处理** - 批量处理多个文件
+- 📁 **自动整理** - 创建books目录，规范化文件结构
+- 🤖 **AI工作流集成** - 自动复制.claude模板，支持AI代理知识图谱构建
+- 📊 **知识图谱构建** - 内置专业的Wiki知识网络分析框架
+- 🔧 **跨平台兼容** - Windows、macOS、Linux完全兼容
+- ⚡ **递归搜索** - 智能扫描目录树中的所有epub文件
+- 📋 **文件信息展示** - 显示文件大小、修改时间和相对路径
 
 ## 🙏 鸣谢
 
@@ -251,6 +148,9 @@ MIT License - 自由使用，欢迎贡献
 
 ---
 
-**开始您的电子书整理之旅！** 📚✨
+**开始您的AI驱动知识图谱构建之旅！** 📚🤖✨
 
-> 💡 提示：处理完成后，可以将整理好的markdown文档导入到Obsidian、Notion等知识管理工具中，或者使用AI工具进行深度分析。
+> 💡 提示：处理完成后，您可以：
+> - 🤖 使用Claude AI自动构建专业知识图谱网络
+> - 📊 导入到Obsidian、Notion等工具进行可视化管理
+> - 🔍 享受结构化的、相互关联的深度知识分析体验
